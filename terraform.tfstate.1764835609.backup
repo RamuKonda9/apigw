@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.13.3",
-  "serial": 26,
+  "serial": 24,
   "lineage": "baca3e7c-f216-4bb7-b227-4093793f5ac8",
   "outputs": {
     "invoke_url": {
