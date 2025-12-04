@@ -34,5 +34,7 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
-      - name: Show API Gateway Invoke URL
-        run: terraform output invoke_url
+      - name: Show API Gateway URL
+        run: |
+          echo "🚀 API Gateway deployed! Invoke URL:"
+          terraform output -raw invoke_url
