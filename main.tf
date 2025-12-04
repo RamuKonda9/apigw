@@ -16,12 +16,16 @@ provider "aws" {
 # Lambda Function
 # ---------------------------
 resource "aws_lambda_function" "hello_lambda" {
-  function_name = "hello-api-lambda"
-  handler       = "index.handler"
-  runtime       = "nodejs18.x"
-  role          = aws_iam_role.lambda_role.arn
-  filename      = "lambda.zip"   # Will create below
+  function_name    = "hello-api-lambda"
+  handler          = "index.handler"
+  runtime          = "nodejs18.x"
+  role             = aws_iam_role.lambda_role.arn
+  filename         = "lambda.zip" # Will create below
   source_code_hash = filebase64sha256("lambda.zip")
+  lifecycle {
+  ignore_changes = [filename, source_code_hash]
+}
+
 }
 
 # Lambda Execution Role
@@ -78,12 +82,13 @@ resource "aws_api_gateway_integration" "hello_integration" {
 
 # Allow API Gateway to invoke Lambda
 resource "aws_lambda_permission" "api_invoke" {
-  statement_id  = "AllowAPIGatewayInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.hello_lambda.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
+  statement_id_prefix = "AllowAPIGatewayInvoke"
+  action              = "lambda:InvokeFunction"
+  function_name       = aws_lambda_function.hello_lambda.function_name
+  principal           = "apigateway.amazonaws.com"
+  source_arn          = "${aws_api_gateway_rest_api.api.execution_arn}/*/*"
 }
+
 
 # Deployment + Stage
 resource "aws_api_gateway_deployment" "deploy" {
@@ -94,9 +99,9 @@ resource "aws_api_gateway_deployment" "deploy" {
 }
 
 resource "aws_api_gateway_stage" "prod" {
-  rest_api_id  = aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.api.id
   deployment_id = aws_api_gateway_deployment.deploy.id
-  stage_name   = "prod"
+  stage_name    = "prod"
 }
 
 output "invoke_url" {
